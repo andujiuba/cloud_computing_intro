@@ -1,4 +1,3 @@
-# cloud_computing_intro
 # SRE introduction
 ## Cloud computing w AWS
 ### SDLC stages
