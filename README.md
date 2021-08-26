@@ -2,7 +2,7 @@
 # SRE introduction
 ## Cloud computing w AWS
 ### SDLC stages
-####Risk factors with SDLC stages
+#### Risk factors with SDLC stages
 ##### Monitoring
 
 
