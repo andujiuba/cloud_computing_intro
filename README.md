@@ -50,8 +50,27 @@ Deployment
 
 **SDLC Risk levels**
 - What are the risk level at each stage of SDLC?
+
 - Low: Requirement Analysis
 - Medium: Planning/Design, Testing
 - High: Development/Implementation, Deployment&Maintenance
 
 
+**Advantages of AWS**
+
+- Not as many ongoing costs (just the subscription fee, rather than maintanence, upgrades etc)
+- Multi-cloud environment (ultra-hybrid)
+- Nothing is lost if machine breaks --> all on Cloud
+
+**Disadvangtages of AWS**
+
+- Responsibilty of the data shifts --> data travels from local host to Cloud (how is responsible in between?) --> hybrid cloud for confidential data
+- Hybrid Cloud infrastructure (some important data is kept in own data centre (own security, hard-drive), other data is publically available on AWS) --> e.g Banks
+
+**On Premises**
+
+
+**On Cloud**
+
+
+**Multi-Cloud**
