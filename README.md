@@ -14,6 +14,8 @@
 - What is the role of SRE?
 
 -- Building and implemting change to a server
+-- Build automation
+-- Ensure reliability of a server
 
 
 **Cloud Computing**
