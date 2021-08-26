@@ -34,7 +34,7 @@
 -- Global reach
 
 **SDLC and Stages of SDLC**
-![image](https://user-images.githubusercontent.com/88186581/130939435-4ccbb7f8-ef79-44d1-9ff8-bb21be06c615.png)
+![image](https://www.goodfirms.co/glossary/wp-content/uploads/2017/07/Software-Development-Life-Cycle.png)
 - What is SDLC and what are the stages of it?
 
 -- Methodology of creating software
@@ -48,8 +48,8 @@ Deployment
 
 **SDLC Risk levels**
 - What are the risk level at each stage of SDLC?
-- Low
-- Medium
-- High
+- Low: Requirement Analysis
+- Medium: Planning/Design, Testing
+- High: Development/Implementation, Deployment&Maintenance
 
 
