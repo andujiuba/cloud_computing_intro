@@ -14,8 +14,6 @@
 - What is the role of SRE?
 
 -- Building and implemting change to a server
--- Build automation
--- Ensure reliability of a server
 
 
 **Cloud Computing**
@@ -50,27 +48,90 @@ Deployment
 
 **SDLC Risk levels**
 - What are the risk level at each stage of SDLC?
-
 - Low: Requirement Analysis
 - Medium: Planning/Design, Testing
 - High: Development/Implementation, Deployment&Maintenance
 
 
-**Advantages of AWS**
+### Creating a Dev Env Using VirtualBox and Vagrant (NginX Web Server)
 
-- Not as many ongoing costs (just the subscription fee, rather than maintanence, upgrades etc)
-- Multi-cloud environment (ultra-hybrid)
-- Nothing is lost if machine breaks --> all on Cloud
+1. Create file `Vagrantfile` -- (vim Vagrantfile)
+    - Add code: 
+    ```bash 
+    Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/xenial64"
+    config.vm.network "private_network", ip: "192.168.10.100"
+    end
+    ```
+2. Run `vagrant up` in terminal (make sure it's in same directory as `Vagrantfile`)
+3. Type (in succession):
+```bash
+sudo apt-get update -y
+sudo apt-get upgrade -y
+sudo apt-get install nginx -y
+```
+- -y automatically inputs `yes`
+4. Check if nginx package was installed:
+```bash
+systemctl status nginx
+```
+5. Type in `192.163.10.100` in web browser
+6. Create a `provision.sh` file in same directory as `Vagrantfile` -- use git bash:
+```bash
+!#/bin/bash
 
-**Disadvangtages of AWS**
+# Let's automate the installation of nginx
 
-- Responsibilty of the data shifts --> data travels from local host to Cloud (how is responsible in between?) --> hybrid cloud for confidential data
-- Hybrid Cloud infrastructure (some important data is kept in own data centre (own security, hard-drive), other data is publically available on AWS) --> e.g Banks
+sudo apt-get update -y
 
-**On Premises**
+sudo apt-get upgrade -y
 
+sudo apt-get install nginx -y
 
-**On Cloud**
+# Creating provision.sh to run the script
+```
+7. Make executable:
+```bash
+sudo chmod +x provision.sh
+```
+8. Place `provision.sh` with `Vagrantfile`
+    - Run `vagrant destroy` in same directory, the run `rm -rf .vagrant`
+    - Update `Vagrantfile`:
+    ```bash
+    # Provisioning
+    config.vm.provision "shell", path: "provision.sh", privileged: false
+    ```
+9. Run: `vagrant up` to start up VM
+10. Add to `Vagrantfile`:
+```bash
+# Synced app folder - path of your host machine
+    config.vm.synced_folder "app", "/home/ubuntu/app"
+```
+### Installing Dependancies for App
 
+1. Within **vagrant**, install `npm`:
+```bash
+sudo apt-get install npm -y
+```
+    - npm is a package manager
+2. Install `nodejs`
+    - Use code in VM:
+    ```bash
+    sudo apt-get install python-software-properties
+    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+    sudo apt-get install nodejs -y
+    ```
+3. Install `pm2` inside `app` directory:
+```bash
+sudo npm insatll pm2 -g
+```
+4. Code: 
+```bash
+sudo npm install
+sudo npm start
+```
+5. Exit VM then type in
+browser `192.163.10.100:3000`
 
-**Multi-Cloud**
+### To Research:
+- reverse proxy
