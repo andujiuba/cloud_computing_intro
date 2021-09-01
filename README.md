@@ -52,8 +52,10 @@ Deployment
 - Medium: Planning/Design, Testing
 - High: Development/Implementation, Deployment&Maintenance
 
-
+## **Thursday 26/8**
 ### Creating a Dev Env Using VirtualBox and Vagrant (NginX Web Server)
+
+### INSERT IMAGE
 
 1. Create file `Vagrantfile` -- (vim Vagrantfile)
     - Add code: 
@@ -109,11 +111,11 @@ sudo chmod +x provision.sh
 ```
 ### Installing Dependancies for App
 
-1. Within **vagrant**, install `npm`:
+1. Within **vagrant**, install `npm`: 
+(npm is a package manager)
 ```bash
 sudo apt-get install npm -y
 ```
-    - npm is a package manager
 2. Install `nodejs`
     - Use code in VM:
     ```bash
@@ -123,7 +125,7 @@ sudo apt-get install npm -y
     ```
 3. Install `pm2` inside `app` directory:
 ```bash
-sudo npm insatll pm2 -g
+sudo npm install pm2 -g
 ```
 4. Code: 
 ```bash
@@ -133,5 +135,238 @@ sudo npm start
 5. Exit VM then type in
 browser `192.163.10.100:3000`
 
+
+## **Friday 27/8**:
+### INSERT IMAGE
+
+*Do first iteration of VM manually, then automate
+    - better understanding of system*
+
+#### **Today's Tasks**:
+- need VM to provision Mongodb
+- need app to connect to db, bring it back and display
+- connect to machine through private IP (**198.162.10.150**)
+- db port: **27017**
+- add instructions through Vagrantfile, then destroy/reload
+- **192.168.10.100/posts** --> loads database
+
+<br>
+
+1. Go into VM and enter `app` directory. If machine was restarted, check if VM lost internet connection with:
+```bash
+ sudo apt-get update -y
+```
+If error message occurs, then exit the VM and type:
+``` bash
+vagrant reload
+```
+or
+```bash
+vagrant destroy
+vagrant up
+```
+
+2. Go back to VM and check there's a connection:
+```bash
+ping www.bbc.com
+```
+*To manually run the script, type in the terminal:*
+```bash
+vagrant provision
+vagrant status
+```
+
+3. Try code again:
+```bash
+ sudo apt-get update -y
+```
+4. Install same files from Thursday
+
+
+### Configure a Reverse Proxy
+*want to load node app page on 192.168.10.100 in stead of using :3000*
+*use nginx as reverse proxy and redirect to :3000 page*
+
+1. 
+```bash
+sudo nano /etc/nginx/sites-available/default
+```
+2. Find `server` block and replace with:
+```bash
+server {
+    listen 80;
+
+    server_name _;
+
+    location / {
+        proxy_pass http://localhost:3000;      
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade'; 
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;      
+    }
+}
+```
+- COULD ADD ACCESS TO OTHER APPLICATIONS:
+```bash
+location /*name* {
+    proxy_pass http://localhost:*ip*;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+}
+```
+2. Check for errors:
+```bash
+sudo nginx -t
+```
+3. Restart NGINX:
+```bash
+sudo systemctl restart nginx
+
+sudo npm start
+```
+4. Automate process by changing `provision.sh` file, adding a new `default.txt` file to replace the NGINX `/etc/nginx/sites-available/default` file and changing the `vagrantfile`
+
+```bash
+# Automating dependencies installation
+
+sudo apt-get install npm -y
+
+sudo apt-get install python-software-properties -y
+
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+
+sudo apt-get install nodejs -y
+
+# Change directories
+
+cd /home/ubuntu/app
+sudo npm install pm2 -g -y
+
+npm install
+
+# Change default nginx config file with new default in app_setup/rev_proxy folder
+
+sudo rm /etc/nginx/sites-available/default
+
+sudo ln -s /home/ubuntu/rev_proxy/default.txt /etc/nginx/sites-available/default
+
+sudo systemctl restart nginx
+```
+
+<br>
+
+### Creating a Multi Machine Setup
+
+*Machines need to talk to eachother
+(api calls, keys, aws, env variables)
+in this case we need to create an environment variable (DB_HOST w IP of db)*
+- create 2 VM (app and db)
+- app provisioned w node, dp w mongodb
+- env variable created in app vm called DB_HOST=db-ip:27017/posts
+- env can be created w export command in Linux
+- check : Printenv DB_HOST
+- /posts should load db
+
+1. Create new db directory and create `provision.sh` file
+```bash
+!#/bin/bash
+
+# Creating provision.sh to run the script
+
+sudo apt-get update -y
+
+sudo apt-get upgrade -y
+
+#Adding MongoDB Repo
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+sudo apt-get update
+
+#Adding MongoDB Repo
+sudo apt-get install -y mongodb-org
+sudo systemctl start mongod
+
+#Start MongoDB
+sudo systemctl enable mongod
+```
+
+2. Add new VM to `Vagrantfile`:
+```bash
+config.vm.define "db" do |db|
+    db.vm.box = "ubuntu/xenial64"
+    db.vm.network "private_network", ip: "192.168.10.150"
+    db.vm.provision "shell", path: "db_setup/provision.sh"
+end
+```
+
+3. In directory, change bindIp to 0.0.0.0 :
+```bash
+sudo nano /etc/mongod.conf
+```
+4. Automate: add to Vagrantfile, provision.sh and a new mongod.conf file
+
+#### **Linking w NGINX**
+
+1. Create and delete in app VM
+```bash
+export DB_HOST=mongodb://192.168.10.150:27017/posts
+
+sudo nano cd ~/.bashrc
+```
+
+2. exit to Windows then go back in and print env
+    - they are NOT persistent
+    - need to write them inside `.bashrc` file and execute:
+```bash
+source ~/.bashrc
+```
+3.
+```bash
+export DB_HOST=192.168.10.150:27017/posts >> ~/.bashrc
+OR
+export DB_HOST=192.168.10.150:27017/posts
+echo "export DB_HOST=192.168.10.150:27017/posts" >> ~/.bashrc
+source ~/.bashrc
+```
+
+<br>
+
+
+
+<br>
+
+**Troubleshotting**
+
+- If the npm package isn't working (or anything really), then:
+```bash
+vagrant destroy
+rm -rf .vagrant
+vagrant up 
+``` 
+- To check status of NGINX (see if provisioning file is running):
+```bash
+systemctl status nginx
+```
+
+
+
 ### To Research:
 - reverse proxy
+
+want to create own file and add to provision file
+
+create own mong.con file
+
+change ip adress in file
+restart and enable
+
+this is part of process of automation
+
+systemsctl restart systemsctl enable
+
+## **Go to cloud_computing_AWS repository to continue on**
