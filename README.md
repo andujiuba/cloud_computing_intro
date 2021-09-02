@@ -229,7 +229,7 @@ sudo systemctl restart nginx
 
 sudo npm start
 ```
-4. Automate process by changing `provision.sh` file, adding a new `default.txt` file to replace the NGINX `/etc/nginx/sites-available/default` file and changing the `vagrantfile`
+4. Automate process by changing `provision.sh` file, adding a new `default.txt` file to replace the NGINX `/etc/nginx/sites-available/default` file and changing the `Vagrantfile`
 
 ```bash
 # Automating dependencies installation
@@ -254,6 +254,8 @@ npm install
 sudo rm /etc/nginx/sites-available/default
 
 sudo ln -s /home/ubuntu/rev_proxy/default.txt /etc/nginx/sites-available/default
+
+sudo nginx -t
 
 sudo systemctl restart nginx
 ```
@@ -308,7 +310,7 @@ end
 ```bash
 sudo nano /etc/mongod.conf
 ```
-4. Automate: add to Vagrantfile, provision.sh and a new mongod.conf file
+4. Automate: add to `Vagrantfile`, `provision.sh` and a new `mongod.conf` file
 
 #### **Linking w NGINX**
 
@@ -325,17 +327,21 @@ sudo nano cd ~/.bashrc
 ```bash
 source ~/.bashrc
 ```
-3.
+3. Make it permanent
 ```bash
-export DB_HOST=192.168.10.150:27017/posts >> ~/.bashrc
-OR
 export DB_HOST=192.168.10.150:27017/posts
 echo "export DB_HOST=192.168.10.150:27017/posts" >> ~/.bashrc
 source ~/.bashrc
 ```
+- edit app `provision.sh`
+    - add echo and source statement
 
 <br>
+IMPORTANT
 
+```bash
+echo "DB_HOST=mongodb://192.168.10.150:27017/posts" | sudo tee -a /etc/environment
+```
 
 
 <br>
